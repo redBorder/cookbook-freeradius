@@ -1,4 +1,4 @@
-module Rbnmsp
+module Rbfreeradius
   module Helpers
 
   end

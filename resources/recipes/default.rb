@@ -1,12 +1,12 @@
 #
-# Cookbook Name:: rbnmsp
+# Cookbook Name:: rbfreeradius
 # Recipe:: default
 #
 # redborder
 #
 #
 
-rbnmsp_config "config" do
+rbfreeradius_config "config" do
   name node["hostname"]
   action :add
 end

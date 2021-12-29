@@ -1,4 +1,4 @@
 #default attributes
 #
 
-default["rb-nmsp"]["registered"] = false
+default["rb-freeradius"]["registered"] = false

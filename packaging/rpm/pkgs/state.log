@@ -1,0 +1,26 @@
+2021-12-27 11:08:46,084 - Mock Version: 2.14
+2021-12-27 11:08:48,257 - Start: yum update
+2021-12-27 11:08:53,093 - Finish: yum update
+2021-12-27 11:08:53,101 - Finish: chroot init
+2021-12-27 11:08:53,106 - Start: buildsrpm
+2021-12-27 11:08:53,110 - Start: rpmbuild -bs
+2021-12-27 11:08:53,431 - Finish: rpmbuild -bs
+2021-12-27 11:08:53,433 - Finish: buildsrpm
+2021-12-27 11:08:53,435 - Start: clean chroot
+2021-12-27 11:08:56,907 - Finish: clean chroot
+2021-12-27 11:08:56,908 - Finish: run
+2021-12-27 11:09:00,919 - Mock Version: 2.14
+2021-12-27 11:09:03,186 - Start: yum update
+2021-12-27 11:09:06,405 - Finish: yum update
+2021-12-27 11:09:06,412 - Finish: chroot init
+2021-12-27 11:09:06,415 - Start: build phase for cookbook-rb-nmsp-0.0.1-1.el7.rb.src.rpm
+2021-12-27 11:09:06,416 - Start: build setup for cookbook-rb-nmsp-0.0.1-1.el7.rb.src.rpm
+2021-12-27 11:09:26,083 - Finish: build setup for cookbook-rb-nmsp-0.0.1-1.el7.rb.src.rpm
+2021-12-27 11:09:26,083 - Start: Outputting list of installed packages
+2021-12-27 11:09:26,405 - Finish: Outputting list of installed packages
+2021-12-27 11:09:26,406 - Start: rpmbuild cookbook-rb-nmsp-0.0.1-1.el7.rb.src.rpm
+2021-12-27 11:09:26,852 - Finish: rpmbuild cookbook-rb-nmsp-0.0.1-1.el7.rb.src.rpm
+2021-12-27 11:09:26,856 - Finish: build phase for cookbook-rb-nmsp-0.0.1-1.el7.rb.src.rpm
+2021-12-27 11:09:26,860 - Start: clean chroot
+2021-12-27 11:09:31,480 - Finish: clean chroot
+2021-12-27 11:09:31,481 - Finish: run

@@ -11,7 +11,7 @@
 
 kafka_log {
 # Connection info:
-brokers = "<%= @kafka_managers.nil? ? "kafka.#{ node["redborder"]["cdomain"] }" : ( (@kafka_managers.size==1 and @kafka_managers.first.name==node.name) ? "127.0.0.1" : (@kafka_managers.first(5).map{|x| (x.name == node.name ? "127.0.0.1" : "#{x.name}.#{ x["redborder"]["cdomain"] }" )}.join(","))) %>"
+brokers = "127.0.0.1"
 #port = 9092
 topic  = "rb_radius"
 

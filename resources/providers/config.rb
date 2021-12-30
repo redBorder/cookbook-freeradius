@@ -19,22 +19,23 @@ action :add do
       action :create
     end
 
-    #radius
-    db_radius_secrets = nil
-    if !node["redBorder"]["manager"]["externals"].nil? and !node["redBorder"]["manager"]["externals"]["postgresql"].nil? and !node["redBorder"]["manager"]["externals"]["postgresql"]["radius"].nil?
-      db_radius_secrets=node["redBorder"]["manager"]["externals"]["postgresql"]["radius"] if node["redBorder"]["manager"]["externals"]["postgresql"]["radius"]["enabled"] == true
+    ##########################
+    # Retrieve databag data
+    ##########################
+    db_radius_secrets = Chef::DataBagItem.load("passwords", "db_radius_secrets") rescue db_radius_secrets = {}
+    if !db_radius_secrets.empty?
+      db_name_radius = db_radius_secrets["database"]
+      db_username_radius = db_radius_secrets["username"]
+      db_pass_radius = db_radius_secrets["pass"]
+      db_port_radius = db_radius_secrets["port"]
+      db_hostname_radius = db_radius_secrets["hostname"]
+      db_external_radius = db_radius_secrets["external"]
     end
-    begin
-      db_radius_secrets = Chef::EncryptedDataBagItem.load("passwords", "db_radius") if db_radius_secrets.nil?
-    rescue
-      db_radius_secrets = {}
-    end
-    db_radius_port = (db_radius_secrets["port"].nil? ? 5432 : db_radius_secrets["port"].to_i)
 
 
     execute "configure_redborder-freeradius" do
       command "pushd etc/raddb/sites-enabled; ln -s ../sites-available/dynamic-clients ./; popd"
-      notifies :restart, "service[redborder-freeradius]", :delayed if manager_services["redborder-freeradius"]
+      notifies :restart, "service[redborder-freeradius]", :delayed
       ignore_failure true
       action :nothing
     end
@@ -100,7 +101,7 @@ action :add do
       mode 0644
       retries 2
       notifies :restart, "service[redborder-freeradius]", :delayed
-      variables( :db_name_radius => db_radius_secrets["database"], :db_hostname_radius => db_radius_secrets["hostname"], :db_pass_radius => db_radius_secrets['pass'], :db_username_radius => db_radius_secrets['username'], :db_port_radius => db_radius_port, :db_external_radius => db_radius_secrets["external"])
+      variables( :db_name_radius => db_name_radius, :db_hostname_radius => db_hostname_radius, :db_pass_radius => db_pass_radius, :db_username_radius => db_username_radius, :db_port_radius => db_port_radius, :db_external_radius => db_external_radius)
     end
 
     template "/etc/raddb/kafka_log.conf" do
@@ -110,7 +111,7 @@ action :add do
       group "root"
       mode 0644
       retries 2
-      variables(:kafka_managers => managers_per_service["kafka"], :flow_nodes => flow_nodes)
+      variables(:flow_nodes => flow_nodes)
       notifies :restart, "service[redborder-freeradius]", :delayed
     end
 
@@ -131,7 +132,6 @@ action :add do
       service_name "redborder-freeradius"
       ignore_failure true
       supports :status => true, :reload => true, :restart => true
-      manager_services["redborder-freeradius"] ? action([:start, :enable]) : action([:stop, :disable])
       action [:enable, :start]
     end
 

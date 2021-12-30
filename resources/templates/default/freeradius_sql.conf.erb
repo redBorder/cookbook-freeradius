@@ -33,7 +33,7 @@ database = "postgresql"
 driver = "rlm_sql_${database}"
 
 # Connection info:
-server = <%= @db_hostname_radius.nil? ? "postgresql.#{ node["redBorder"]["cdomain"] }" : @db_hostname_radius %>
+server = <%= @db_hostname_radius.nil? ? "postgresql.#{ node["redborder"]["cdomain"] }" : @db_hostname_radius %>
 port = <%= @db_port_radius.nil? ? "5432" : @db_port_radius %>
 login = <%= @db_username_radius %>
 password = <%= @db_pass_radius %>

@@ -11,7 +11,7 @@
 
 kafka_log {
 # Connection info:
-brokers = "<%= @kafka_managers.nil? ? "kafka.#{ node["redBorder"]["cdomain"] }" : ( (@kafka_managers.size==1 and @kafka_managers.first.name==node.name) ? "127.0.0.1" : (@kafka_managers.first(5).map{|x| (x.name == node.name ? "127.0.0.1" : "#{x.name}.#{ x["redBorder"]["cdomain"] }" )}.join(","))) %>"
+brokers = "<%= @kafka_managers.nil? ? "kafka.#{ node["redborder"]["cdomain"] }" : ( (@kafka_managers.size==1 and @kafka_managers.first.name==node.name) ? "127.0.0.1" : (@kafka_managers.first(5).map{|x| (x.name == node.name ? "127.0.0.1" : "#{x.name}.#{ x["redborder"]["cdomain"] }" )}.join(","))) %>"
 #port = 9092
 topic  = "rb_radius"
 
@@ -20,8 +20,8 @@ topic  = "rb_radius"
 rdkafka.socket.keepalive.enable = "true"
 rdkafka.socket.max.fails = "3"
 <% @flow_nodes.each_with_index do |flow_node, i| %>
-  <% if !flow_node[:ipaddress].nil? and !flow_node['redBorder']['radius_secret'].nil? and !flow_node['redBorder']['radius_secret'].to_s.empty? %>
-    enrichment.host_<%= flow_node[:ipaddress].gsub(/\./, "_") %>  = '{"index_partitions":<%= [ 1, ( !flow_node["redBorder"].nil? and !flow_node["redBorder"]["index_partitions"].nil? ) ? flow_node["redBorder"]["index_partitions"].to_i : 5].max %>,"index_replicas":<%= [ 1, ( !flow_node["redBorder"].nil? and !flow_node["redBorder"]["index_replicas"].nil? ) ? flow_node["redBorder"]["index_replicas"].to_i : 1].max %>,"dot11_status":"ASSOCIATED","sensor_name":"<%= flow_node["rbname"].nil? ? flow_node.name : flow_node["rbname"] %>","sensor_ip":"<%= flow_node[:ipaddress] %>"<% ["sensor_uuid", "deployment", "deployment_uuid", "namespace", "namespace_uuid", "market", "market_uuid", "organization", "organization_uuid", "service_provider", "service_provider_uuid", "campus", "campus_uuid", "building", "building_uuid", "floor", "floor_uuid"].each do |ss| %><% if !flow_node["redBorder"][ss].nil? and flow_node["redBorder"][ss]!="" %>,"<%= ss %>":"<%= flow_node["redBorder"][ss] %>"<% end %><% end %>}'
+  <% if !flow_node[:ipaddress].nil? and !flow_node['redborder']['radius_secret'].nil? and !flow_node['redborder']['radius_secret'].to_s.empty? %>
+    enrichment.host_<%= flow_node[:ipaddress].gsub(/\./, "_") %>  = '{"index_partitions":<%= [ 1, ( !flow_node["redborder"].nil? and !flow_node["redborder"]["index_partitions"].nil? ) ? flow_node["redborder"]["index_partitions"].to_i : 5].max %>,"index_replicas":<%= [ 1, ( !flow_node["redborder"].nil? and !flow_node["redborder"]["index_replicas"].nil? ) ? flow_node["redborder"]["index_replicas"].to_i : 1].max %>,"dot11_status":"ASSOCIATED","sensor_name":"<%= flow_node["rbname"].nil? ? flow_node.name : flow_node["rbname"] %>","sensor_ip":"<%= flow_node[:ipaddress] %>"<% ["sensor_uuid", "deployment", "deployment_uuid", "namespace", "namespace_uuid", "market", "market_uuid", "organization", "organization_uuid", "service_provider", "service_provider_uuid", "campus", "campus_uuid", "building", "building_uuid", "floor", "floor_uuid"].each do |ss| %><% if !flow_node["redborder"][ss].nil? and flow_node["redborder"][ss]!="" %>,"<%= ss %>":"<%= flow_node["redborder"][ss] %>"<% end %><% end %>}'
   <% end %>
 <% end %>
 }

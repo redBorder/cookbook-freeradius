@@ -7,18 +7,18 @@
 
 # Accounting flow sensors
 <% @flow_nodes.each_with_index do |flow_node, i| %>
-  <% if !flow_node[:ipaddress].nil? and !flow_node['redBorder']['radius_secret'].nil? and !flow_node['redBorder']['radius_secret'].to_s.empty? and clients[flow_node[:ipaddress]].nil? %>
+  <% if !flow_node[:ipaddress].nil? and !flow_node['redborder']['radius_secret'].nil? and !flow_node['redborder']['radius_secret'].to_s.empty? and clients[flow_node[:ipaddress]].nil? %>
     <% clients[flow_node[:ipaddress]]=true %>
     client host_<%= flow_node[:ipaddress].gsub(/\./, "_") %> {
     ipaddr = <%= flow_node[:ipaddress] %>
-    secret = <%= flow_node['redBorder']['radius_secret'] %>
+    secret = <%= flow_node['redborder']['radius_secret'] %>
     }
   <% end %>
 <% end %>
 
 # Accounting clients
-<% if !node["redBorder"]["radius_servers"].nil? %>
-  <% node["redBorder"]["radius_servers"].each do |s| %>
+<% if !node["redborder"]["radius_servers"].nil? %>
+  <% node["redborder"]["radius_servers"].each do |s| %>
     <% if clients[s["host"]].nil? %>
       <% clients[s["host"]]=true %>
       client host_<%= s["host"].gsub(/\./, "_") %> {
@@ -30,8 +30,8 @@
 <% end %>
 
 # Authentication clients
-<% if !node["redBorder"]["radius_authentication_servers"].nil? %>
-  <% node["redBorder"]["radius_authentication_servers"].each do |s| %>
+<% if !node["redborder"]["radius_authentication_servers"].nil? %>
+  <% node["redborder"]["radius_authentication_servers"].each do |s| %>
     <% if clients[s["src_host"]].nil? %>
       <% clients[s["src_host"]]=true %>
       client host_<%= s["src_host"].gsub(/\./, "_") %> {

@@ -81,7 +81,7 @@ server dynamic_client_server {
 #
 #  The only contents of the virtual server is the "authorize" section.
 authorize {
-# <redBorder>
+# <redborder>
   if ("%{raw:Called-Station-Id}") {
   if ("%{sql: SELECT count(*) FROM nas WHERE community  = '%{raw:Called-Station-Id}'}" == 1) {
   update control {
@@ -116,7 +116,7 @@ authorize {
   }
 
   }
-  #</redBorder>
+  #</redborder>
 
 #
 #  Put any modules you want here.  SQL, LDAP, "exec",

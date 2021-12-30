@@ -12,7 +12,7 @@ action :add do
       flush_cache[:before]
     end
 
-    directory config_dir do #/etc/redborder-freeradius
+    directory config_dir do #/etc/raddb
       owner "root"
       group "root"
       mode '755'
@@ -33,7 +33,7 @@ action :add do
 
 
     execute "configure_redborder-freeradius" do
-      command "pushd /opt/rb/etc/raddb/sites-enabled; ln -s ../sites-available/dynamic-clients ./; popd"
+      command "pushd etc/raddb/sites-enabled; ln -s ../sites-available/dynamic-clients ./; popd"
       notifies :restart, "service[redborder-freeradius]", :delayed if manager_services["redborder-freeradius"]
       ignore_failure true
       action :nothing
@@ -41,7 +41,7 @@ action :add do
 
     #Templates
 
-    template "/etc/redborder-freeradius/radiusd.conf" do
+    template "/etc/raddb/radiusd.conf" do
       source "freeradius_radiusd.conf.erb"
       cookbook "rbfreeradius"
       owner "root"
@@ -51,7 +51,7 @@ action :add do
       notifies :restart, "service[redborder-freeradius]", :delayed
     end
 
-    template "/etc/redborder-freeradius/sites-available/default" do
+    template "/etc/raddb/sites-available/default" do
       source "freeradius_default.erb"
       cookbook "rbfreeradius"
       owner "root"
@@ -62,7 +62,7 @@ action :add do
       notifies :run, "execute[configure_redborder-freeradius]", :delayed
     end
 
-    template "/etc/redborder-freeradius/sites-available/inner-tunnel" do
+    template "/etc/raddb/sites-available/inner-tunnel" do
       source "freeradius_inner-tunnel.erb"
       cookbook "rbfreeradius"
       owner "root"
@@ -72,7 +72,7 @@ action :add do
       notifies :restart, "service[redborder-freeradius]", :delayed
     end
 
-    template "/etc/redborder-freeradius/sites-available/dynamic-clients" do
+    template "/etc/raddb/sites-available/dynamic-clients" do
       source "freeradius_dynamic-clients.erb"
       cookbook "rbfreeradius"
       owner "root"
@@ -82,7 +82,7 @@ action :add do
       notifies :restart, "service[redborder-freeradius]", :delayed
     end
 
-    template "/etc/redborder-freeradius/modules/raw" do
+    template "/etc/raddb/modules/raw" do
       source "freeradius_modules_raw.erb"
       cookbook "rbfreeradius"
       owner "root"
@@ -92,7 +92,7 @@ action :add do
       notifies :restart, "service[redborder-freeradius]", :delayed
     end
 
-    template "/etc/redborder-freeradius/sql.conf" do
+    template "/etc/raddb/sql.conf" do
       source "freeradius_sql.conf.erb"
       cookbook "rbfreeradius"
       owner "root"
@@ -103,7 +103,7 @@ action :add do
       variables( :db_name_radius => db_radius_secrets["database"], :db_hostname_radius => db_radius_secrets["hostname"], :db_pass_radius => db_radius_secrets['pass'], :db_username_radius => db_radius_secrets['username'], :db_port_radius => db_radius_port, :db_external_radius => db_radius_secrets["external"])
     end
 
-    template "/etc/redborder-freeradius/kafka_log.conf" do
+    template "/etc/raddb/kafka_log.conf" do
       source "freeradius_kafka_log.conf.erb"
       cookbook "rbfreeradius"
       owner "root"
@@ -114,7 +114,7 @@ action :add do
       notifies :restart, "service[redborder-freeradius]", :delayed
     end
 
-    template "/etc/redborder-freeradius/clients.conf" do
+    template "/etc/raddb/clients.conf" do
       source "freeradius_clients.conf.erb"
       cookbook "rbfreeradius"
       owner "root"

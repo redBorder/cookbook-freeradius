@@ -6,9 +6,6 @@ action :add do
   begin
     config_dir = new_resource.config_dir
     flow_nodes = new_resource.flow_nodes
-    proxy_nodes = new_resource.proxy_nodes
-    memory = new_resource.memory
-    hosts = new_resource.hosts
 
     yum_package "redborder-freeradius" do
       action :upgrade
@@ -22,16 +19,18 @@ action :add do
       action :create
     end
 
-    ##########################nnnnn
-    # Retrieve databag data
-    ##########################
-    db_redborder = Chef::DataBagItem.load("passwords", "db_redborder") rescue db_redborder = {}
-    if !db_redborder.empty?
-      psql_name = db_redborder["database"]
-      psql_user = db_redborder["username"]
-      psql_password = db_redborder["pass"]
-      psql_port = db_redborder["port"]
+    #radius
+    db_radius_secrets = nil
+    if !node["redBorder"]["manager"]["externals"].nil? and !node["redBorder"]["manager"]["externals"]["postgresql"].nil? and !node["redBorder"]["manager"]["externals"]["postgresql"]["radius"].nil?
+      db_radius_secrets=node["redBorder"]["manager"]["externals"]["postgresql"]["radius"] if node["redBorder"]["manager"]["externals"]["postgresql"]["radius"]["enabled"] == true
     end
+    begin
+      db_radius_secrets = Chef::EncryptedDataBagItem.load("passwords", "db_radius") if db_radius_secrets.nil?
+    rescue
+      db_radius_secrets = {}
+    end
+    db_radius_port = (db_radius_secrets["port"].nil? ? 5432 : db_radius_secrets["port"].to_i)
+
 
     execute "configure_redborder-freeradius" do
       command "pushd /opt/rb/etc/raddb/sites-enabled; ln -s ../sites-available/dynamic-clients ./; popd"
@@ -40,86 +39,99 @@ action :add do
       action :nothing
     end
 
+    #Templates
+
     template "/etc/redborder-freeradius/radiusd.conf" do
       source "freeradius_radiusd.conf.erb"
+      cookbook "rbfreeradius"
       owner "root"
       group "root"
       mode 0644
       retries 2
-      notifies :restart, "service[redborder-freeradius]", :delayed if manager_services["redborder-freeradius"]
+      notifies :restart, "service[redborder-freeradius]", :delayed
     end
 
-    template "/etc/redborder-freeradius/default" do
+    template "/etc/redborder-freeradius/sites-available/default" do
       source "freeradius_default.erb"
+      cookbook "rbfreeradius"
       owner "root"
       group "root"
       mode 0644
       retries 2
-      notifies :restart, "service[redborder-freeradius]", :delayed if manager_services["redborder-freeradius"]
-      notifies :run, "execute[configure_freeradius]", :delayed
+      notifies :restart, "service[redborder-freeradius]", :delayed
+      notifies :run, "execute[configure_redborder-freeradius]", :delayed
     end
 
-    template "/etc/redborder-freeradius/inner-tunnel" do
+    template "/etc/redborder-freeradius/sites-available/inner-tunnel" do
       source "freeradius_inner-tunnel.erb"
+      cookbook "rbfreeradius"
       owner "root"
       group "root"
       mode 0644
       retries 2
-      notifies :restart, "service[redborder-freeradius]", :delayed if manager_services["redborder-freeradius"]
+      notifies :restart, "service[redborder-freeradius]", :delayed
     end
 
-    template "/etc/redborder-freeradius/dynamic-clients" do
+    template "/etc/redborder-freeradius/sites-available/dynamic-clients" do
       source "freeradius_dynamic-clients.erb"
+      cookbook "rbfreeradius"
       owner "root"
       group "root"
       mode 0644
       retries 2
-      notifies :restart, "service[redborder-freeradius]", :delayed if manager_services["redborder-freeradius"]
+      notifies :restart, "service[redborder-freeradius]", :delayed
     end
 
-    template "/etc/redborder-freeradius/raw" do
+    template "/etc/redborder-freeradius/modules/raw" do
       source "freeradius_modules_raw.erb"
+      cookbook "rbfreeradius"
       owner "root"
       group "root"
       mode 0644
       retries 2
-      notifies :restart, "service[redborder-freeradius]", :delayed if manager_services["redborder-freeradius"]
+      notifies :restart, "service[redborder-freeradius]", :delayed
     end
 
     template "/etc/redborder-freeradius/sql.conf" do
       source "freeradius_sql.conf.erb"
+      cookbook "rbfreeradius"
       owner "root"
       group "root"
       mode 0644
       retries 2
-      notifies :restart, "service[redborder-freeradius]", :delayed if manager_services["redborder-freeradius"]
+      notifies :restart, "service[redborder-freeradius]", :delayed
       variables( :db_name_radius => db_radius_secrets["database"], :db_hostname_radius => db_radius_secrets["hostname"], :db_pass_radius => db_radius_secrets['pass'], :db_username_radius => db_radius_secrets['username'], :db_port_radius => db_radius_port, :db_external_radius => db_radius_secrets["external"])
     end
 
     template "/etc/redborder-freeradius/kafka_log.conf" do
       source "freeradius_kafka_log.conf.erb"
+      cookbook "rbfreeradius"
       owner "root"
       group "root"
       mode 0644
       retries 2
       variables(:kafka_managers => managers_per_service["kafka"], :flow_nodes => flow_nodes)
-      notifies :restart, "service[redborder-freeradius]", :delayed if manager_services["redborder-freeradius"]
+      notifies :restart, "service[redborder-freeradius]", :delayed
     end
 
     template "/etc/redborder-freeradius/clients.conf" do
       source "freeradius_clients.conf.erb"
+      cookbook "rbfreeradius"
       owner "root"
       group "root"
       mode 0644
       retries 2
       variables(:flow_nodes => flow_nodes)
-      notifies :reload, "service[redborder-freeradius]", :delayed if manager_services["redborder-freeradius"]
+      notifies :reload, "service[redborder-freeradius]", :delayed
     end
+
+    #end of templates
 
     service "redborder-freeradius" do
       service_name "redborder-freeradius"
       ignore_failure true
       supports :status => true, :reload => true, :restart => true
+      manager_services["redborder-freeradius"] ? action([:start, :enable]) : action([:stop, :disable])
       action [:enable, :start]
     end
 

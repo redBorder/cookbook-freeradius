@@ -6,10 +6,9 @@ License:  GNU AGPLv3
 URL:  https://github.com/redBorder/cookbook-rb-freeradius
 Source0: %{name}-%{version}.tar.gz
 
-BuildRequires: maven java-devel
 
 Summary: freeradius cookbook to install and configure it in redborder environments
-Requires: java
+
 
 %description
 %{summary}

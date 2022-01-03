@@ -78,9 +78,9 @@ action :add do
     end
 
 
-    execute "configure_redborder-freeradius" do
+    execute "configure_freeradius-rb" do
       command "pushd etc/raddb/sites-enabled; ln -s ../sites-available/dynamic-clients ./; popd"
-      notifies :restart, "service[redborder-freeradius]", :delayed
+      notifies :restart, "service[radiusd]", :delayed
       ignore_failure true
       action :nothing
     end
@@ -94,7 +94,7 @@ action :add do
       group "root"
       mode 0644
       retries 2
-      notifies :restart, "service[redborder-freeradius]", :delayed
+      notifies :restart, "service[radiusd]", :delayed
     end
 
     template "/etc/raddb/sites-available/default" do
@@ -105,7 +105,7 @@ action :add do
       mode 0644
       retries 2
       notifies :restart, "service[redborder-freeradius]", :delayed
-      notifies :run, "execute[configure_redborder-freeradius]", :delayed
+      notifies :run, "execute[configure_freeradius-rb]", :delayed
     end
 
     template "/etc/raddb/sites-available/inner-tunnel" do
@@ -115,7 +115,7 @@ action :add do
       group "root"
       mode 0644
       retries 2
-      notifies :restart, "service[redborder-freeradius]", :delayed
+      notifies :restart, "service[radiusd]", :delayed
     end
 
     template "/etc/raddb/sites-available/dynamic-clients" do
@@ -125,7 +125,7 @@ action :add do
       group "root"
       mode 0644
       retries 2
-      notifies :restart, "service[redborder-freeradius]", :delayed
+      notifies :restart, "service[radiusd]", :delayed
     end
 
     template "/etc/raddb/modules/raw" do
@@ -135,7 +135,7 @@ action :add do
       group "root"
       mode 0644
       retries 2
-      notifies :restart, "service[redborder-freeradius]", :delayed
+      notifies :restart, "service[radiusd]", :delayed
     end
 
     template "/etc/raddb/sql.conf" do
@@ -145,7 +145,7 @@ action :add do
       group "root"
       mode 0644
       retries 2
-      notifies :restart, "service[redborder-freeradius]", :delayed
+      notifies :restart, "service[radiusd]", :delayed
       variables( :db_name_radius => db_name_radius, :db_hostname_radius => db_hostname_radius, :db_pass_radius => db_pass_radius, :db_username_radius => db_username_radius, :db_port_radius => db_port_radius, :db_external_radius => db_external_radius)
     end
 
@@ -157,7 +157,7 @@ action :add do
       mode 0644
       retries 2
       variables(:flow_nodes => flow_nodes)
-      notifies :restart, "service[redborder-freeradius]", :delayed
+      notifies :restart, "service[radiusd]", :delayed
     end
 
     template "/etc/raddb/clients.conf" do
@@ -168,19 +168,19 @@ action :add do
       mode 0644
       retries 2
       variables(:flow_nodes => flow_nodes)
-      notifies :reload, "service[redborder-freeradius]", :delayed
+      notifies :reload, "service[radiusd]", :delayed
     end
 
     #end of templates
 
-    service "redborder-freeradius" do
-      service_name "redborder-freeradius"
+    service "radiusd" do
+      service_name "radiusd"
       ignore_failure true
       supports :status => true, :reload => true, :restart => true
       action [:enable, :start]
     end
 
-    Chef::Log.info("cookbook redborder-freeradius has been processed.")
+    Chef::Log.info("cookbook freeradius has been processed.")
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -188,12 +188,12 @@ end
 
 action :remove do
   begin
-    service "redborder-freeradius" do
-      service_name "redborder-freeradius"
+    service "radiusd" do
+      service_name "radiusd"
       supports :status => true, :restart => true, :start => true, :enable => true, :disable => true
       action [:disable, :stop]
     end
-    Chef::Log.info("cookbook redborder-freeradius has been processed.")
+    Chef::Log.info("cookbook freeradius has been processed.")
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -215,7 +215,7 @@ action :register do #Usually used to register in consul
         action :nothing
       end.run_action(:run)
 
-      node.set["rb-nmsp"]["registered"] = true
+      node.set["rb-freeradius"]["registered"] = true
     end
     Chef::Log.info("rb-freeradius service has been registered in consul")
   rescue => e

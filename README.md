@@ -1,6 +1,6 @@
 # cookbook-rb-freeradius
 
-Cookbook to install and configure redborder freeradius
+Cookbook to install and configure freeradius-rb
 ### Platforms
 
 - Centos 7

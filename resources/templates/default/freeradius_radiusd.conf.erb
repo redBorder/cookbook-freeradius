@@ -48,12 +48,11 @@
 #	See "man unlang" for details.
 #
 
-prefix = /opt/rb
-exec_prefix = /opt/rb
-sysconfdir = ${prefix}/etc
-localstatedir = ${prefix}/var
-sbindir = /opt/rb/bin
-logdir = /var/log/freeradius
+prefix = /usr
+sysconfdir = /etc
+localstatedir = /var
+sbindir = /usr/sbin
+logdir = ${localstatedir}/log/radius
 raddbdir = ${sysconfdir}/raddb
 radacctdir = ${logdir}/radacct
 
@@ -100,7 +99,11 @@ db_dir = ${raddbdir}
 #	make
 #	make install
 #
-libdir = ${exec_prefix}/lib
+
+exec_prefix = /usr
+libdir = ${exec_prefix}/lib64/freeradius
+
+
 
 #  pidfile: Where to place the PID of the RADIUS server.
 #
@@ -161,8 +164,8 @@ pidfile = ${run_dir}/${name}.pid
 #  It will join all groups where "user" is a member.  This can allow
 #  for some finer-grained access controls.
 #
-#user = radius
-#group = radius
+user = radiusd
+group = radiusd
 
 #  panic_action: Command to execute if the server dies unexpectedly.
 #

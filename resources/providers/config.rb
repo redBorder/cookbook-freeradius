@@ -57,6 +57,11 @@ action :add do
       flush_cache[:before]
     end
 
+    yum_package "rbutils" do
+      action :upgrade
+      flush_cache[:before]
+    end
+
     directory config_dir do #/etc/raddb
       owner "root"
       group "root"

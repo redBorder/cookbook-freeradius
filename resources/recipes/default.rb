@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: rbfreeradius
+# Cookbook Name:: freeradius
 # Recipe:: default
 #
 # redborder

@@ -1,4 +1,4 @@
-# Cookbook Name:: rbfreeradius
+# Cookbook Name:: freeradius
 #
 # Provider:: config
 #
@@ -89,7 +89,7 @@ action :add do
 
     template "/etc/raddb/radiusd.conf" do
       source "freeradius_radiusd.conf.erb"
-      cookbook "rbfreeradius"
+      cookbook "freeradius"
       owner "root"
       group "root"
       mode 0644
@@ -99,18 +99,18 @@ action :add do
 
     template "/etc/raddb/sites-available/default" do
       source "freeradius_default.erb"
-      cookbook "rbfreeradius"
+      cookbook "freeradius"
       owner "root"
       group "root"
       mode 0644
       retries 2
-      notifies :restart, "service[redborder-freeradius]", :delayed
       notifies :run, "execute[configure_freeradius-rb]", :delayed
+      notifies :restart, "service[radiusd]", :delayed
     end
 
     template "/etc/raddb/sites-available/inner-tunnel" do
       source "freeradius_inner-tunnel.erb"
-      cookbook "rbfreeradius"
+      cookbook "freeradius"
       owner "root"
       group "root"
       mode 0644
@@ -120,7 +120,7 @@ action :add do
 
     template "/etc/raddb/sites-available/dynamic-clients" do
       source "freeradius_dynamic-clients.erb"
-      cookbook "rbfreeradius"
+      cookbook "freeradius"
       owner "root"
       group "root"
       mode 0644
@@ -130,7 +130,7 @@ action :add do
 
     template "/etc/raddb/modules/raw" do
       source "freeradius_modules_raw.erb"
-      cookbook "rbfreeradius"
+      cookbook "freeradius"
       owner "root"
       group "root"
       mode 0644
@@ -140,7 +140,7 @@ action :add do
 
     template "/etc/raddb/sql.conf" do
       source "freeradius_sql.conf.erb"
-      cookbook "rbfreeradius"
+      cookbook "freeradius"
       owner "root"
       group "root"
       mode 0644
@@ -151,7 +151,7 @@ action :add do
 
     template "/etc/raddb/kafka_log.conf" do
       source "freeradius_kafka_log.conf.erb"
-      cookbook "rbfreeradius"
+      cookbook "freeradius"
       owner "root"
       group "root"
       mode 0644
@@ -162,7 +162,7 @@ action :add do
 
     template "/etc/raddb/clients.conf" do
       source "freeradius_clients.conf.erb"
-      cookbook "rbfreeradius"
+      cookbook "freeradius"
       owner "root"
       group "root"
       mode 0644

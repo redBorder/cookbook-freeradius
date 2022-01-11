@@ -1,4 +1,4 @@
-PACKAGE_NAME?=	cookbook-rb-freeradius
+PACKAGE_NAME?=	cookbook-freeradius
 
 VERSION?=	$(shell git describe --abbrev=6 --tags HEAD --always | sed 's/-/_/g')
 

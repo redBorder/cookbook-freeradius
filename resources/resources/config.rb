@@ -1,4 +1,4 @@
-#Cookbook Name :: rbfreeradius
+#Cookbook Name :: freeradius
 #
 # Resource:: config
 #

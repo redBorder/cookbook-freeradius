@@ -72,7 +72,7 @@ action :add do
     ##########################
     # Retrieve databag data
     ##########################
-    db_radius_secrets = Chef::DataBagItem.load("passwords", "db_radius_secrets") rescue db_radius_secrets = {}
+    db_radius_secrets = Chef::DataBagItem.load("passwords", "db_radius") rescue db_radius_secrets = {}
     if !db_radius_secrets.empty?
       db_name_radius = db_radius_secrets["database"]
       db_username_radius = db_radius_secrets["username"]
@@ -82,6 +82,13 @@ action :add do
       db_external_radius = db_radius_secrets["external"]
     end
 
+    bash "creating_radius_tables" do
+      code <<-EOH
+        /bin/psql -U #{db_username_radius} -h #{db_hostname_radius} -p #{db_port_radius} -f #{config_dir}/sql/postgresql/nas.sql
+        /bin/psql -U #{db_username_radius} -h #{db_hostname_radius} -p #{db_port_radius} -f #{config_dir}/sql/postgresql/schema.sql
+      EOH
+      only_if{ shell_out("psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}", "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'nas'::regclass;").error? || shell_out("psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}", "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'radacct'::regclass;").error? }
+    end
 
     execute "configure_freeradius-rb" do
       command "pushd etc/raddb/sites-enabled; ln -s ../sites-available/dynamic-clients ./; popd"
@@ -207,10 +214,10 @@ end
 
 action :register do #Usually used to register in consul
   begin
-    if !node["rb-freeradius"]["registered"]
+    if !node["freeradius"]["registered"]
       query = {}
-      query["ID"] = "rb-freeradius-#{node["hostname"]}"
-      query["Name"] = "rb-freeradius"
+      query["ID"] = "freeradius-#{node["hostname"]}"
+      query["Name"] = "freeradius"
       query["Address"] = "#{node["ipaddress"]}"
       query["Port"] = 1812
       json_query = Chef::JSONCompat.to_json(query)
@@ -220,9 +227,9 @@ action :register do #Usually used to register in consul
         action :nothing
       end.run_action(:run)
 
-      node.set["rb-freeradius"]["registered"] = true
+      node.set["freeradius"]["registered"] = true
     end
-    Chef::Log.info("rb-freeradius service has been registered in consul")
+    Chef::Log.info("freeradius service has been registered in consul")
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -230,15 +237,15 @@ end
 
 action :deregister do #Usually used to deregister from consul
   begin
-    if node["rb-freeradius"]["registered"]
+    if node["freeradius"]["registered"]
       execute 'Deregister service in consul' do
-        command "curl http://localhost:8500/v1/agent/service/deregister/rb-freeradius-#{node["hostname"]} &>/dev/null"
+        command "curl http://localhost:8500/v1/agent/service/deregister/freeradius-#{node["hostname"]} &>/dev/null"
         action :nothing
       end.run_action(:run)
 
-      node.set["rb-freeradius"]["registered"] = false
+      node.set["freeradius"]["registered"] = false
     end
-    Chef::Log.info("rb-freeradius service has been deregistered from consul")
+    Chef::Log.info("freeradius service has been deregistered from consul")
   rescue => e
     Chef::Log.error(e.message)
   end

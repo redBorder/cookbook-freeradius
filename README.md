@@ -1,4 +1,4 @@
-# cookbook-rb-freeradius
+# cookbook-freeradius
 
 Cookbook to install and configure freeradius-rb
 ### Platforms
@@ -7,3 +7,4 @@ Cookbook to install and configure freeradius-rb
 
 ## Authors
 Vicente Mesa <vimesa@redborder.com>
+Eduardo Reyes <eareyes@redborder.com>

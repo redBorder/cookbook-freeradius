@@ -6,7 +6,7 @@
 #
 #
 
-rbfreeradius_config "config" do
+freeradius_config "config" do
   name node["hostname"]
   action :add
 end

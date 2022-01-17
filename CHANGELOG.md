@@ -1,7 +1,7 @@
-nmsp CHANGELOG
+freeradius CHANGELOG
 ===============
 
 0.0.1
 -----
-[eareyes]
+[vimesa]
 - First code

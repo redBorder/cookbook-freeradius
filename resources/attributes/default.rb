@@ -1,4 +1,4 @@
 #default attributes
 #
 
-default["rb-freeradius"]["registered"] = false
+default["freeradius"]["registered"] = false

@@ -87,7 +87,8 @@ action :add do
         /bin/psql -U #{db_username_radius} -h #{db_hostname_radius} -p #{db_port_radius} -f #{config_dir}/sql/postgresql/nas.sql
         /bin/psql -U #{db_username_radius} -h #{db_hostname_radius} -p #{db_port_radius} -f #{config_dir}/sql/postgresql/schema.sql
       EOH
-      only_if{ shell_out("psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}", "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'nas'::regclass;").error? || shell_out("psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}", "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'radacct'::regclass;").error? }
+      only_if{ shell_out("/bin/psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}", "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'nas'::regclass;").error? ||
+	       shell_out("/bin/psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}", "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'radacct'::regclass;").error? }
     end
 
     execute "configure_freeradius-rb" do

@@ -1,3 +1,14 @@
+<% role = "" %>
+<% node.roles.each do |r| %>
+  <% if r.include? "manager" %>
+    <% role = "manager" %>
+    <% break %>
+  <% elsif r.include? "proxy" %>
+    <% role = "proxy" %>
+    <% break %>
+  <% end %>
+<% end %>
+
 ######################################################################
 #
 #	As of 2.0.0, FreeRADIUS supports virtual hosts using the
@@ -167,14 +178,14 @@ ok = return
 
 #
 #  Read the 'users' file
-#	files
+<%= role == "proxy" ? "" : "#   " %>files
 
 #
 #  Look in an SQL database.  The schema of the database
 #  is meant to mirror the "users" file.
 #
 #  See "Authorization Queries" in sql.conf
-sql
+<%= role == "manager" ? "" : "#   " %>sql
 
 #
 #  If you are using /etc/smbpasswd, and are also doing

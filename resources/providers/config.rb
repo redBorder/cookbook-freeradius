@@ -159,11 +159,15 @@ action :config_manager do
 
   bash "creating_radius_tables" do
     code <<-EOH
-        /bin/psql -U #{db_username_radius} -h #{db_hostname_radius} -p #{db_port_radius} -f #{config_dir}/sql/postgresql/nas.sql
-        /bin/psql -U #{db_username_radius} -h #{db_hostname_radius} -p #{db_port_radius} -f #{config_dir}/sql/postgresql/schema.sql
+        /bin/psql -U #{db_username_radius} -h #{db_hostname_radius} -p #{db_port_radius} \
+                                           -f #{config_dir}/sql/postgresql/nas.sql
+        /bin/psql -U #{db_username_radius} -h #{db_hostname_radius} -p #{db_port_radius} \
+                                           -f #{config_dir}/sql/postgresql/schema.sql
     EOH
-    only_if{ shell_out("/bin/psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}", "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'nas'::regclass;").error? ||
-      shell_out("/bin/psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}", "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'radacct'::regclass;").error? }
+    only_if{ shell_out("/bin/psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}",
+                                    "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'nas'::regclass;").error? ||
+             shell_out("/bin/psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}",
+                                    "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'radacct'::regclass;").error? }
   end
 
   template "#{config_dir}/sql.conf" do

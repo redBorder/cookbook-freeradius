@@ -4,7 +4,7 @@
 #
 action :config_common do
   begin
-    mode = new_resource.config_dir
+    mode = new_resource.mode
     config_dir = new_resource.config_dir
     flow_nodes = new_resource.flow_nodes
 

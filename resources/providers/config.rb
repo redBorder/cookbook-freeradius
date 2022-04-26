@@ -72,7 +72,7 @@ action :add do
 
     #Templates
 
-    template "/etc/raddb/radiusd.conf" do
+    template "#{config_dir}/radiusd.conf" do
       source "freeradius_radiusd.conf.erb"
       cookbook "freeradius"
       owner "root"
@@ -82,7 +82,7 @@ action :add do
       notifies :restart, "service[radiusd]", :delayed
     end
 
-    template "/etc/raddb/sites-available/default" do
+    template "#{config_dir}/sites-available/default" do
       source "freeradius_default.erb"
       cookbook "freeradius"
       owner "root"
@@ -93,7 +93,14 @@ action :add do
       notifies :restart, "service[radiusd]", :delayed
     end
 
-    template "/etc/raddb/kafka_log.conf" do
+    execute "configure_freeradius-rb" do
+      command "pushd etc/raddb/sites-enabled; ln -s ../sites-available/dynamic-clients ./; popd"
+      notifies :restart, "service[radiusd]", :delayed
+      ignore_failure true
+      action :nothing
+    end
+
+    template "#{config_dir}/kafka_log.conf" do
       source "freeradius_kafka_log.conf.erb"
       cookbook "freeradius"
       owner "root"
@@ -104,7 +111,7 @@ action :add do
       notifies :restart, "service[radiusd]", :delayed
     end
 
-    template "/etc/raddb/clients.conf" do
+    template "#{config_dir}/clients.conf" do
       source "freeradius_clients.conf.erb"
       cookbook "freeradius"
       owner "root"
@@ -124,13 +131,15 @@ action :add do
       action [:enable, :start]
     end
 
-    Chef::Log.info("cookbook freeradius has been processed.")
+    Chef::Log.info("Common cookbook freeradius configuration has been processed.")
   rescue => e
     Chef::Log.error(e.message)
   end
 end
 
 action :config_manager do
+
+  config_dir = new_resource.config_dir
 
   ##########################
   # Retrieve databag data
@@ -154,14 +163,7 @@ action :config_manager do
       shell_out("/bin/psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}", "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'radacct'::regclass;").error? }
   end
 
-  execute "configure_freeradius-rb" do
-    command "pushd etc/raddb/sites-enabled; ln -s ../sites-available/dynamic-clients ./; popd"
-    notifies :restart, "service[radiusd]", :delayed
-    ignore_failure true
-    action :nothing
-  end
-
-  template "/etc/raddb/sql.conf" do
+  template "#{config_dir}/sql.conf" do
     source "freeradius_sql.conf.erb"
     cookbook "freeradius"
     owner "root"
@@ -174,7 +176,7 @@ action :config_manager do
                :db_port_radius => db_port_radius, :db_external_radius => db_external_radius)
   end
 
-  template "/etc/raddb/modules/raw" do
+  template "#{config_dir}/modules/raw" do
     source "freeradius_modules_raw.erb"
     cookbook "freeradius"
     owner "root"
@@ -184,7 +186,7 @@ action :config_manager do
     notifies :restart, "service[radiusd]", :delayed
   end
 
-  template "/etc/raddb/sites-available/inner-tunnel" do
+  template "#{config_dir}/sites-available/inner-tunnel" do
     source "freeradius_inner-tunnel.erb"
     cookbook "freeradius"
     owner "root"
@@ -194,7 +196,7 @@ action :config_manager do
     notifies :restart, "service[radiusd]", :delayed
   end
 
-  template "/etc/raddb/sites-available/dynamic-clients" do
+  template "#{config_dir}/sites-available/dynamic-clients" do
     source "freeradius_dynamic-clients.erb"
     cookbook "freeradius"
     owner "root"
@@ -210,6 +212,8 @@ action :config_manager do
     supports :status => true, :reload => true, :restart => true
     action [:enable, :start]
   end
+
+  Chef::Log.info("Manager cookbook freeradius configuration has been processed.")
 
 end
 

@@ -2,8 +2,9 @@
 #
 # Provider:: config
 #
-action :add do
+action :config_common do
   begin
+    mode = new_resource.config_dir
     config_dir = new_resource.config_dir
     flow_nodes = new_resource.flow_nodes
 
@@ -79,6 +80,7 @@ action :add do
       group "root"
       mode 0644
       retries 2
+      variables(:mode => mode)
       notifies :restart, "service[radiusd]", :delayed
     end
 
@@ -89,6 +91,7 @@ action :add do
       group "root"
       mode 0644
       retries 2
+      variables(:mode => mode)
       notifies :run, "execute[configure_freeradius-rb]", :delayed
       notifies :restart, "service[radiusd]", :delayed
     end
@@ -107,7 +110,7 @@ action :add do
       group "root"
       mode 0644
       retries 2
-      variables(:flow_nodes => flow_nodes)
+      variables(:flow_nodes => flow_nodes, :mode => mode)
       notifies :restart, "service[radiusd]", :delayed
     end
 
@@ -118,7 +121,7 @@ action :add do
       group "root"
       mode 0644
       retries 2
-      variables(:flow_nodes => flow_nodes)
+      variables(:flow_nodes => flow_nodes, :mode => mode)
       notifies :reload, "service[radiusd]", :delayed
     end
 

@@ -9,17 +9,6 @@
 #  Configuration for the KAFKA module
 #
 
-<% role = "" %>
-<% node.roles.each do |r| %>
-  <% if r.include? "manager" %>
-    <% role = "manager" %>
-    <% break %>
-  <% elsif r.include? "proxy" %>
-    <% role = "proxy" %>
-    <% break %>
-  <% end %>
-<% end %>
-
 kafka_log {
 # Connection info:
 brokers = "127.0.0.1"
@@ -34,7 +23,7 @@ rdkafka.socket.max.fails = "3"
   <% if !flow_node[:ipaddress].nil? and
         !flow_node['redborder']['radius_secret'].nil? and
         !flow_node['redborder']['radius_secret'].to_s.empty? %>
-      <% case role %>
+      <% case @mode %>
         <% when "manager" %>
     enrichment.host_<%= flow_node[:ipaddress].gsub(/\./, "_") %>  = '{"index_partitions":<%= [ 1, ( !flow_node["redborder"].nil? and !flow_node["redborder"]["index_partitions"].nil? ) ? flow_node["redborder"]["index_partitions"].to_i : 5].max %>,"index_replicas":<%= [ 1, ( !flow_node["redborder"].nil? and !flow_node["redborder"]["index_replicas"].nil? ) ? flow_node["redborder"]["index_replicas"].to_i : 1].max %>,"dot11_status":"ASSOCIATED","sensor_name":"<%= flow_node["rbname"].nil? ? flow_node.name : flow_node["rbname"] %>","sensor_ip":"<%= flow_node[:ipaddress] %>"<% ["sensor_uuid", "deployment", "deployment_uuid", "namespace", "namespace_uuid", "market", "market_uuid", "organization", "organization_uuid", "service_provider", "service_provider_uuid", "campus", "campus_uuid", "building", "building_uuid", "floor", "floor_uuid"].each do |ss| %><% if !flow_node["redborder"][ss].nil? and flow_node["redborder"][ss]!="" %>,"<%= ss %>":"<%= flow_node["redborder"][ss] %>"<% end %><% end %>}'
         <% when "proxy" %>

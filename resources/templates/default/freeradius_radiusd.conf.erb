@@ -669,7 +669,7 @@ $INCLUDE eap.conf
 #  Include another file that has the SQL-related configuration.
 #  This is another file only because it tends to be big.
 #
-$INCLUDE sql.conf
+<% @mode == "manager" ? "" : "#" %>$INCLUDE sql.conf
 
 #
 #  This module is an SQL enabled version of the counter module.
@@ -752,7 +752,7 @@ logintime
 #	sql1
 #	sql2
 #}
-raw
+<% @mode == "manager" ? "raw" : "" %>
 }
 
 ######################################################################

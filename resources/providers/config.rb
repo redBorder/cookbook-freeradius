@@ -2,8 +2,9 @@
 #
 # Provider:: config
 #
-action :add do
+action :config_common do
   begin
+    mode = new_resource.mode
     config_dir = new_resource.config_dir
     flow_nodes = new_resource.flow_nodes
 
@@ -69,26 +70,30 @@ action :add do
       action :create
     end
 
-    ##########################
-    # Retrieve databag data
-    ##########################
-    db_radius_secrets = Chef::DataBagItem.load("passwords", "db_radius") rescue db_radius_secrets = {}
-    if !db_radius_secrets.empty?
-      db_name_radius = db_radius_secrets["database"]
-      db_username_radius = db_radius_secrets["username"]
-      db_pass_radius = db_radius_secrets["pass"]
-      db_port_radius = db_radius_secrets["port"]
-      db_hostname_radius = db_radius_secrets["hostname"]
-      db_external_radius = db_radius_secrets["external"]
+
+    #Templates
+
+    template "#{config_dir}/radiusd.conf" do
+      source "freeradius_radiusd.conf.erb"
+      cookbook "freeradius"
+      owner "root"
+      group "root"
+      mode 0644
+      retries 2
+      variables(:mode => mode)
+      notifies :restart, "service[radiusd]", :delayed
     end
 
-    bash "creating_radius_tables" do
-      code <<-EOH
-        /bin/psql -U #{db_username_radius} -h #{db_hostname_radius} -p #{db_port_radius} -f #{config_dir}/sql/postgresql/nas.sql
-        /bin/psql -U #{db_username_radius} -h #{db_hostname_radius} -p #{db_port_radius} -f #{config_dir}/sql/postgresql/schema.sql
-      EOH
-      only_if{ shell_out("/bin/psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}", "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'nas'::regclass;").error? ||
-	       shell_out("/bin/psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}", "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'radacct'::regclass;").error? }
+    template "#{config_dir}/sites-available/default" do
+      source "freeradius_default.erb"
+      cookbook "freeradius"
+      owner "root"
+      group "root"
+      mode 0644
+      retries 2
+      variables(:mode => mode)
+      notifies :run, "execute[configure_freeradius-rb]", :delayed
+      notifies :restart, "service[radiusd]", :delayed
     end
 
     execute "configure_freeradius-rb" do
@@ -98,89 +103,25 @@ action :add do
       action :nothing
     end
 
-    #Templates
-
-    template "/etc/raddb/radiusd.conf" do
-      source "freeradius_radiusd.conf.erb"
-      cookbook "freeradius"
-      owner "root"
-      group "root"
-      mode 0644
-      retries 2
-      notifies :restart, "service[radiusd]", :delayed
-    end
-
-    template "/etc/raddb/sites-available/default" do
-      source "freeradius_default.erb"
-      cookbook "freeradius"
-      owner "root"
-      group "root"
-      mode 0644
-      retries 2
-      notifies :run, "execute[configure_freeradius-rb]", :delayed
-      notifies :restart, "service[radiusd]", :delayed
-    end
-
-    template "/etc/raddb/sites-available/inner-tunnel" do
-      source "freeradius_inner-tunnel.erb"
-      cookbook "freeradius"
-      owner "root"
-      group "root"
-      mode 0644
-      retries 2
-      notifies :restart, "service[radiusd]", :delayed
-    end
-
-    template "/etc/raddb/sites-available/dynamic-clients" do
-      source "freeradius_dynamic-clients.erb"
-      cookbook "freeradius"
-      owner "root"
-      group "root"
-      mode 0644
-      retries 2
-      notifies :restart, "service[radiusd]", :delayed
-    end
-
-    template "/etc/raddb/modules/raw" do
-      source "freeradius_modules_raw.erb"
-      cookbook "freeradius"
-      owner "root"
-      group "root"
-      mode 0644
-      retries 2
-      notifies :restart, "service[radiusd]", :delayed
-    end
-
-    template "/etc/raddb/sql.conf" do
-      source "freeradius_sql.conf.erb"
-      cookbook "freeradius"
-      owner "root"
-      group "root"
-      mode 0644
-      retries 2
-      notifies :restart, "service[radiusd]", :delayed
-      variables( :db_name_radius => db_name_radius, :db_hostname_radius => db_hostname_radius, :db_pass_radius => db_pass_radius, :db_username_radius => db_username_radius, :db_port_radius => db_port_radius, :db_external_radius => db_external_radius)
-    end
-
-    template "/etc/raddb/kafka_log.conf" do
+    template "#{config_dir}/kafka_log.conf" do
       source "freeradius_kafka_log.conf.erb"
       cookbook "freeradius"
       owner "root"
       group "root"
       mode 0644
       retries 2
-      variables(:flow_nodes => flow_nodes)
+      variables(:flow_nodes => flow_nodes, :mode => mode)
       notifies :restart, "service[radiusd]", :delayed
     end
 
-    template "/etc/raddb/clients.conf" do
+    template "#{config_dir}/clients.conf" do
       source "freeradius_clients.conf.erb"
       cookbook "freeradius"
       owner "root"
       group "root"
       mode 0644
       retries 2
-      variables(:flow_nodes => flow_nodes)
+      variables(:flow_nodes => flow_nodes, :mode => mode)
       notifies :reload, "service[radiusd]", :delayed
     end
 
@@ -193,10 +134,94 @@ action :add do
       action [:enable, :start]
     end
 
-    Chef::Log.info("cookbook freeradius has been processed.")
+    Chef::Log.info("Common cookbook freeradius configuration has been processed.")
   rescue => e
     Chef::Log.error(e.message)
   end
+end
+
+action :config_manager do
+
+  config_dir = new_resource.config_dir
+
+  ##########################
+  # Retrieve databag data
+  ##########################
+  db_radius_secrets = Chef::DataBagItem.load("passwords", "db_radius") rescue db_radius_secrets = {}
+  if !db_radius_secrets.empty?
+    db_name_radius = db_radius_secrets["database"]
+    db_username_radius = db_radius_secrets["username"]
+    db_pass_radius = db_radius_secrets["pass"]
+    db_port_radius = db_radius_secrets["port"]
+    db_hostname_radius = db_radius_secrets["hostname"]
+    db_external_radius = db_radius_secrets["external"]
+  end
+
+  bash "creating_radius_tables" do
+    code <<-EOH
+        /bin/psql -U #{db_username_radius} -h #{db_hostname_radius} -p #{db_port_radius} \
+                                           -f #{config_dir}/sql/postgresql/nas.sql
+        /bin/psql -U #{db_username_radius} -h #{db_hostname_radius} -p #{db_port_radius} \
+                                           -f #{config_dir}/sql/postgresql/schema.sql
+    EOH
+    only_if{ shell_out("/bin/psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}",
+                                    "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'nas'::regclass;").error? ||
+             shell_out("/bin/psql", "-U", "#{db_username_radius}", "-h", "#{db_hostname_radius}",
+                                    "-p", "#{db_port_radius}", "-t", "-c", "SELECT 'radacct'::regclass;").error? }
+  end
+
+  template "#{config_dir}/sql.conf" do
+    source "freeradius_sql.conf.erb"
+    cookbook "freeradius"
+    owner "root"
+    group "root"
+    mode 0644
+    retries 2
+    notifies :restart, "service[radiusd]", :delayed
+    variables( :db_name_radius => db_name_radius, :db_hostname_radius => db_hostname_radius,
+               :db_pass_radius => db_pass_radius, :db_username_radius => db_username_radius,
+               :db_port_radius => db_port_radius, :db_external_radius => db_external_radius)
+  end
+
+  template "#{config_dir}/modules/raw" do
+    source "freeradius_modules_raw.erb"
+    cookbook "freeradius"
+    owner "root"
+    group "root"
+    mode 0644
+    retries 2
+    notifies :restart, "service[radiusd]", :delayed
+  end
+
+  template "#{config_dir}/sites-available/inner-tunnel" do
+    source "freeradius_inner-tunnel.erb"
+    cookbook "freeradius"
+    owner "root"
+    group "root"
+    mode 0644
+    retries 2
+    notifies :restart, "service[radiusd]", :delayed
+  end
+
+  template "#{config_dir}/sites-available/dynamic-clients" do
+    source "freeradius_dynamic-clients.erb"
+    cookbook "freeradius"
+    owner "root"
+    group "root"
+    mode 0644
+    retries 2
+    notifies :restart, "service[radiusd]", :delayed
+  end
+
+  service "radiusd" do
+    service_name "radiusd"
+    ignore_failure true
+    supports :status => true, :reload => true, :restart => true
+    action [:enable, :start]
+  end
+
+  Chef::Log.info("Manager cookbook freeradius configuration has been processed.")
+
 end
 
 action :remove do

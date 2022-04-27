@@ -16,30 +16,32 @@
   <% end %>
 <% end %>
 
+<% if @mode == "manager" %>
 # Accounting clients
-<% if !node["redborder"]["radius_servers"].nil? %>
-  <% node["redborder"]["radius_servers"].each do |s| %>
-    <% if clients[s["host"]].nil? %>
-      <% clients[s["host"]]=true %>
+  <% if !node["redborder"]["radius_servers"].nil? %>
+    <% node["redborder"]["radius_servers"].each do |s| %>
+      <% if clients[s["host"]].nil? %>
+        <% clients[s["host"]]=true %>
       client host_<%= s["host"].gsub(/\./, "_") %> {
       ipaddr = <%= s["host"] %>
       secret = <%= s["shared_secret"] %>
       }
+      <% end %>
     <% end %>
   <% end %>
-<% end %>
 
 # Authentication clients
-<% if !node["redborder"]["radius_authentication_servers"].nil? %>
-  <% node["redborder"]["radius_authentication_servers"].each do |s| %>
-    <% if clients[s["src_host"]].nil? %>
-      <% clients[s["src_host"]]=true %>
+  <% if !node["redborder"]["radius_authentication_servers"].nil? %>
+    <% node["redborder"]["radius_authentication_servers"].each do |s| %>
+      <% if clients[s["src_host"]].nil? %>
+        <% clients[s["src_host"]]=true %>
       client host_<%= s["src_host"].gsub(/\./, "_") %> {
       ipaddr = <%= s["src_host"] %>
       secret = <%= s["src_shared_secret"] %>
       }
-    <% else %>
+      <% else %>
       # <%= s["src_host"] %> is already defined as accounting server
+      <% end %>
     <% end %>
   <% end %>
 <% end %>

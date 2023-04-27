@@ -8,5 +8,5 @@
 
 freeradius_config "config" do
   name node["hostname"]
-  action :add
+  action :config_common
 end

@@ -50,7 +50,9 @@ systemctl daemon-reload
 %doc
 
 %changelog
-* Fri Feb 3 2023 Luis Blanco  <ljblanco@redborder.com> 0.0.2
+* Thu Sep 26 2023 Miguel Negrón <manergron@redborder.com> - 0.0.4-1
+- Add noarch
+* Fri Feb 3 2023 Luis Blanco  <ljblanco@redborder.com> - 0.0.2
 - Integrate freeradius in proxy
 * Wed Dec 29 2021 Vicente Mesa <vimesa@redborder.com>- 0.0.1
 - first spec version

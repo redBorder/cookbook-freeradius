@@ -1,12 +1,12 @@
 Name:     cookbook-freeradius
 Version:  %{__version}
 Release:  %{__release}%{?dist}
+BuildArch: noarch
+Summary: freeradius cookbook to install and configure it in redborder environments
+
 License:  GNU AGPLv3
 URL:  https://github.com/redBorder/cookbook-freeradius
 Source0: %{name}-%{version}.tar.gz
-
-
-Summary: freeradius cookbook to install and configure it in redborder environments
 
 %global debug_package %{nil}
 

@@ -8,57 +8,57 @@ action :config_common do
     config_dir = new_resource.config_dir
     flow_nodes = new_resource.flow_nodes
 
-    yum_package "freeradius-rb" do
+    dnf_package "freeradius-rb" do
       action :upgrade
       flush_cache[:before]
     end
 
-    yum_package "freeradius-rb-kafka" do
+    dnf_package "freeradius-rb-kafka" do
       action :upgrade
       flush_cache[:before]
     end
 
-    yum_package "freeradius-rb-krb5" do
+    dnf_package "freeradius-rb-krb5" do
       action :upgrade
       flush_cache[:before]
     end
 
-    yum_package "freeradius-rb-ldap" do
+    dnf_package "freeradius-rb-ldap" do
       action :upgrade
       flush_cache[:before]
     end
 
-    yum_package "freeradius-rb-mysql" do
+    dnf_package "freeradius-rb-mysql" do
       action :upgrade
       flush_cache[:before]
     end
 
-    yum_package "freeradius-rb-perl" do
+    dnf_package "freeradius-rb-perl" do
       action :upgrade
       flush_cache[:before]
     end
 
-    yum_package "freeradius-rb-postgresql" do
+    dnf_package "freeradius-rb-postgresql" do
       action :upgrade
       flush_cache[:before]
     end
 
-    yum_package "freeradius-rb-python" do
+    dnf_package "freeradius-rb-python" do
       action :upgrade
       flush_cache[:before]
     end
 
-    yum_package "freeradius-rb-unixODBC" do
+    dnf_package "freeradius-rb-unixODBC" do
       action :upgrade
       flush_cache[:before]
     end
 
-    yum_package "freeradius-rb-utils" do
+    dnf_package "freeradius-rb-utils" do
       action :upgrade
       flush_cache[:before]
     end
 
-    yum_package "rbutils" do
+    dnf_package "rbutils" do
       action :upgrade
       flush_cache[:before]
     end

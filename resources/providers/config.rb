@@ -253,7 +253,7 @@ action :register do #Usually used to register in consul
         action :nothing
       end.run_action(:run)
 
-      node.default["freeradius"]["registered"] = true
+      node.normal["freeradius"]["registered"] = true
     end
     Chef::Log.info("freeradius service has been registered in consul")
   rescue => e
@@ -269,7 +269,7 @@ action :deregister do #Usually used to deregister from consul
         action :nothing
       end.run_action(:run)
 
-      node.default["freeradius"]["registered"] = false
+      node.normal["freeradius"]["registered"] = false
     end
     Chef::Log.info("freeradius service has been deregistered from consul")
   rescue => e

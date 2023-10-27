@@ -3,7 +3,7 @@
 Cookbook to install and configure freeradius-rb
 ### Platforms
 
-- Centos 7
+- Rocky Linux 9
 
 ## Authors
 Vicente Mesa <vimesa@redborder.com>

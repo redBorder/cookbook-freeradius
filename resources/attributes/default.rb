@@ -1,4 +1,2 @@
-#default attributes
-#
-
-default["freeradius"]["registered"] = false
+# default attributes
+default['freeradius']['registered'] = false

@@ -1,12 +1,9 @@
-#
-# Cookbook Name:: freeradius
+# Cookbook:: freeradius
 # Recipe:: default
-#
-# redborder
-#
-#
+# Copyright:: 2024, redborder
+# License:: Affero General Public License, Version 3
 
-freeradius_config "config" do
-  name node["hostname"]
+freeradius_config 'config' do
+  name node['hostname']
   action :config_common
 end

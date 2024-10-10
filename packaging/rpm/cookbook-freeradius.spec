@@ -27,6 +27,9 @@ chmod -R 0755 %{buildroot}/var/chef/cookbooks/freeradius
 install -D -m 0644 README.md %{buildroot}/var/chef/cookbooks/freeradius/README.md
 
 %pre
+if [ -d /var/chef/cookbooks/freeradius ]; then
+    rm -rf /var/chef/cookbooks/freeradius
+fi
 
 %post
 case "$1" in
@@ -40,6 +43,12 @@ case "$1" in
   ;;
 esac
 
+%postun
+# Deletes directory when uninstall the package
+if [ "$1" = 0 ] && [ -d /var/chef/cookbooks/freeradius ]; then
+  rm -rf /var/chef/cookbooks/freeradius
+fi
+
 systemctl daemon-reload
 %files
 %defattr(0755,root,root)
@@ -50,9 +59,14 @@ systemctl daemon-reload
 %doc
 
 %changelog
-* Thu Sep 26 2023 Miguel Negrón <manergron@redborder.com> - 0.0.4-1
+* Thu Oct 10 2024 Miguel Negrón <manegron@redborder.com>
+- Add pre and postun
+
+* Thu Sep 26 2023 Miguel Negrón <manergron@redborder.com>
 - Add noarch
-* Fri Feb 3 2023 Luis Blanco  <ljblanco@redborder.com> - 0.0.2
+
+* Fri Feb 3 2023 Luis Blanco  <ljblanco@redborder.com>
 - Integrate freeradius in proxy
-* Wed Dec 29 2021 Vicente Mesa <vimesa@redborder.com>- 0.0.1
+
+* Wed Dec 29 2021 Vicente Mesa <vimesa@redborder.com>
 - first spec version

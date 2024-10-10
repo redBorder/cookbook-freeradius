@@ -1,9 +1,14 @@
 cookbook-freeradius CHANGELOG
 ===============
 
+## 0.0.6
+
+  - Miguel Negrón
+    - [d84d393] Add pre and postun to clean the cookbook
+
 ## 0.0.5
 
-  - Miguel Negron
+  - Miguel Negrón
     - [9e19d79] lint resources
     - [d506038] lint recipes
     - [722c45c] lint providers

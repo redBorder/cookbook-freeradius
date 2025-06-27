@@ -1,6 +1,11 @@
 cookbook-freeradius CHANGELOG
 ===============
 
+## 0.0.7
+
+  - nilsver
+    - [3811a27] remove flush cache
+
 ## 0.0.6
 
   - Miguel Negrón

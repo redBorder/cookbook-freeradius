@@ -1,6 +1,11 @@
 cookbook-freeradius CHANGELOG
 ===============
 
+## 0.0.8
+
+  - jnavarrorb
+    - [5b95bbb] Remove executable permissions on non-executable files
+
 ## 0.0.7
 
   - nilsver
